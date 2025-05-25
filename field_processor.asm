@@ -22,6 +22,11 @@ count_bombs:
     jne .no_bomb_1
     inc r8
     .no_bomb_1:
+    cmp r9b, [flag_symbol]
+    jne .no_flag_1
+    inc r8
+    .no_flag_1:
+
 
     xor r9, r9  ;   right
     mov r9b, [width]
@@ -36,6 +41,10 @@ count_bombs:
     jne .no_bomb_2
     inc r8
     .no_bomb_2:
+    cmp r9b, [flag_symbol]
+    jne .no_flag_2
+    inc r8
+    .no_flag_2:
 
     xor r9, r9  ;   up
     cmp [cursor_pos_y], 0
@@ -53,6 +62,10 @@ count_bombs:
     jne .no_bomb_3
     inc r8
     .no_bomb_3:
+    cmp r9b, [flag_symbol]
+    jne .no_flag_3
+    inc r8
+    .no_flag_3:
 
     xor r9, r9  ;   down
     mov r9b, [height]
@@ -73,6 +86,10 @@ count_bombs:
     jne .no_bomb_4
     inc r8
     .no_bomb_4:
+    cmp r9b, [flag_symbol]
+    jne .no_flag_4
+    inc r8
+    .no_flag_4:
 
     xor r9, r9  ; left-up
     cmp [cursor_pos_x], 0
@@ -94,6 +111,10 @@ count_bombs:
     jne .no_bomb_5
     inc r8
     .no_bomb_5:
+    cmp r9b, [flag_symbol]
+    jne .no_flag_5
+    inc r8
+    .no_flag_5:
 
     xor r9, r9  ; left-down
     mov r9b, [height]
@@ -117,6 +138,10 @@ count_bombs:
     jne .no_bomb_6
     inc r8
     .no_bomb_6:
+    cmp r9b, [flag_symbol]
+    jne .no_flag_6
+    inc r8
+    .no_flag_6:
 
     xor r9, r9  ;   right-up
     mov r9b, [width]
@@ -141,6 +166,10 @@ count_bombs:
     jne .no_bomb_7
     inc r8
     .no_bomb_7:
+    cmp r9b, [flag_symbol]
+    jne .no_flag_7
+    inc r8
+    .no_flag_7:
 
     xor r9, r9  ;   right-down
     mov r9b, [width]
@@ -167,6 +196,10 @@ count_bombs:
     jne .no_bomb_8
     inc r8
     .no_bomb_8:
+    cmp r9b, [flag_symbol]
+    jne .no_flag_8
+    inc r8
+    .no_flag_8:
 
     pop rax
     pop r9
