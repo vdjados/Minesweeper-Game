@@ -3,6 +3,7 @@ public _start
 include 'configure.asm'
 include 'drawer.asm'
 include 'field_generator.asm'
+include 'field_processor.asm'
 
 section '.data' writable
     field_symbol db '#'
@@ -38,10 +39,9 @@ _start:
     call noecho
     call cbreak
     
-    
     .loop:
         ; Отрисовка поля
-        call draw_field
+        call draw_opened_field
         
         ; Обновляем экран
         call refresh
@@ -109,9 +109,16 @@ _start:
         ; Теперь в rax индекс в массиве game_field
         ; Проверяем, является ли ячейка закрытой (#)
         mov r9b, byte [game_field + rax]
-        cmp r9b, [bomb_symbol]
-        jne .show_number               ; если не #, пропускаем
+
+        cmp r9b, [field_symbol]
+        je .show_number               ; если не #, пропускаем
         
+        cmp r9b, [bomb_symbol]
+        je .opened_bomb
+
+        jmp .not_open
+
+        .opened_bomb:
             pop rdx
             pop rdi
             pop rax
@@ -121,8 +128,11 @@ _start:
         .show_number:
             ; Если ячейка закрыта, заменяем её на временное значение (например, '0')
             ; Позже здесь будет вызов функции подсчёта бомб
-            mov byte [game_field + rax], '0'
-        
+            xor r8, r8
+            call count_bombs
+            add r8, '0'
+            mov byte [game_field + rax], r8b
+        .not_open:
         pop rdx
         pop rdi
         pop rax
@@ -147,13 +157,20 @@ _start:
         mov dl, [cursor_pos_x]
         add rax, rdx            ; rax = y * width + x
         
-        ; Теперь в rax индекс в массиве game_field
-        ; Проверяем, является ли ячейка закрытой (#)
         mov r9b, byte [game_field + rax]
+
         cmp r9b, [bomb_symbol]
-        je .set_flag_to_bomb               ; если не #, пропускаем
+        je .set_flag_to_bomb       
+
         cmp r9b, [field_symbol]
-        je .set_wrong_flag  
+        je .set_wrong_flag 
+
+        cmp r9b, [flag_symbol]
+        je .delete_flag_symbol 
+
+        cmp r9b, [wrong_flag_symbol]
+        je .delete_wrong_flag_symbol
+
 
         jmp .skip_flag
 
@@ -169,6 +186,15 @@ _start:
             mov byte [game_field + rax], r8b
             jmp .skip_flag
 
+        .delete_flag_symbol:
+            mov r8b, [bomb_symbol]
+            mov byte [game_field + rax], r8b
+            jmp .skip_flag
+
+        .delete_wrong_flag_symbol:
+            mov r8b, [field_symbol]
+            mov byte [game_field + rax], r8b
+            jmp .skip_flag
         .skip_flag:
         
         pop rdx
