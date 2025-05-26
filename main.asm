@@ -10,6 +10,8 @@ section '.data' writable
     bomb_symbol db '*'
     flag_symbol db '^'
     wrong_flag_symbol db '@'
+    win_msg db "Поздравляем! Вы выиграли!", 0
+    loose_msg db "Вы проиграли. Попробуйте ещё раз!", 0
 section '.bss' writable
     width db 9
     height db 4
@@ -21,7 +23,6 @@ _start:
     call set_configuration
     call generate_field
     
-    add [width], 1
 
     jmp .start_game
 
@@ -40,8 +41,11 @@ _start:
     call cbreak
     
     .loop:
+        jmp .check_win
+        .not_win:
+
         ; Отрисовка поля
-        call draw_opened_field
+        call draw_field
         
         ; Обновляем экран
         call refresh
@@ -75,21 +79,38 @@ _start:
         jmp .loop       ; Если не q - продолжаем цикл
 
     .move_up:
+        cmp [cursor_pos_y], 0
+        je .loop
+
         dec [cursor_pos_y]
         jmp .loop
 
     .move_down:
+        xor r9, r9
+        mov r9b, [height]
+        dec r9b
+        cmp r9b, [cursor_pos_y]
+        je .loop
+
         inc [cursor_pos_y]
         jmp .loop
 
     .move_left:
+        cmp [cursor_pos_x], 0
+        je .loop
+
         dec [cursor_pos_x]
         jmp .loop
 
     .move_right:
+        xor r9, r9
+        mov r9b, [width]
+        dec r9b
+        cmp r9b, [cursor_pos_x]
+        je .loop
+
         inc [cursor_pos_x]
         jmp .loop
-
     
     .open_cell:
         push r8
@@ -210,5 +231,70 @@ _start:
     
     ; Завершение работы
     call endwin
-
+    mov rsi, loose_msg
+    call print_str
+    call new_line
     jmp .exit
+
+.check_win:
+    push rax
+    push rdx
+    push rbx
+    push r8
+    push r9
+    xor rbx, rbx
+    xor r9, r9
+    .loop_win_1:
+        cmp bl, [height]
+        je .next1
+        xor rdx, rdx
+        .loop_win_2:
+
+            cmp dl, [width]
+            je .next
+            
+
+            xor r8, r8
+            mov r8b, [game_field + r9]
+            cmp [wrong_flag_symbol], r8b
+            je .continue_without_win
+
+            cmp [field_symbol], r8b
+            je .continue_without_win
+
+            cmp [bomb_symbol], r8b
+            je .continue_without_win
+
+            inc rdx
+            inc r9
+            jmp .loop_win_2
+
+        .next:
+
+        inc rbx
+
+        jmp .loop_win_1
+
+    .next1:
+
+    .win:
+        pop r9
+        pop r8
+        pop rbx
+        pop rdx
+        pop rax
+
+        call endwin
+        mov rsi, win_msg
+        call print_str
+        call new_line
+        jmp .exit
+
+    .continue_without_win:
+    pop r9
+    pop r8
+    pop rbx
+    pop rdx
+    pop rax
+    
+    jmp .not_win

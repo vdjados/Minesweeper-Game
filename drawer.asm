@@ -31,7 +31,7 @@ draw_field:
 
     mov rdi, 2    ; номер пары (от 1 до 255)
     mov rsi, 3    ; цвет текста (например, BLUE = 4)
-    mov rdx, 1    ; цвет фона (например, BLACK = 0)
+    mov rdx, 1   ; цвет фона (например, BLACK = 0)
     call init_pair
 
     xor rbx, rbx
