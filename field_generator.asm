@@ -1,8 +1,9 @@
 include 'random_generator.asm'
 generate_field:
 
-    
+    push rax
     xor rbx, rbx
+    xor rax, rax
     xor r9, r9
     .loop1:
         cmp bl, [height]
@@ -39,5 +40,5 @@ generate_field:
         jmp .loop1
 
     .next1:
-
+    pop rax
     ret
