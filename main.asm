@@ -15,7 +15,7 @@ section '.data' writable
 section '.bss' writable
     width db 9
     height db 4
-    game_field rb 256  ;
+    game_field rb 10000;
     cursor_pos_x db 1
     cursor_pos_y db 1
 section '.text' executable
